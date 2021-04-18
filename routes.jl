@@ -161,7 +161,7 @@ summary{
 """
 const TEMPLATE_F = """
 <p>
-Made by <a href="https://blog.krastanov.org">Stefan Krastanov</a> with the <a href="https://krastanov.github.io/Quantikz/stable/">Quantikz.jl</a> Julia library, based on the <a href="https://arxiv.org/abs/1809.03842">quantikz TeX package</a>. Runs on <a href="https://www.genieframework.com/">Genie</a>.
+Made by <a href="https://blog.krastanov.org">Stefan Krastanov</a> with the <a href="https://krastanov.github.io/Quantikz/stable/">Quantikz.jl</a> Julia library, based on the <a href="https://arxiv.org/abs/1809.03842">Alastair Kay's quantikz TeX package</a>. Runs on <a href="https://www.genieframework.com/">Genie</a>.
 </p>
 <h2>Accepted Commands (from <a href="https://krastanov.github.io/Quantikz/stable/">Quantikz.jl</a>):</h2>
 <iframe src="https://krastanov.github.io/Quantikz/stable/">
