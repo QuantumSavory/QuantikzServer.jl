@@ -2,7 +2,8 @@ using Genie.Router
 
 using Base64
 using Logging
-using UUIDs # TODO uses hashes instead so that we can memoise (requires implementing hashes in Quantikz)
+using UUIDs
+using LRUCache
 
 using HTTP: unescapeuri
 using MacroTools: postwalk
@@ -16,6 +17,9 @@ const whitelist_symbols = [
     :Noise, :NoiseAll
 ]
 const MAX_LENGTH = 10000
+
+const filecache = LRU{String,UUID}(maxsize=10000) # TODO consider using hash instead of UUID
+# TODO evictions https://github.com/JuliaCollections/LRUCache.jl/pull/23
 
 function parsecircuit(circuitstring)
   length(circuitstring) > MAX_LENGTH && return "the circuit string is too long to render on this free service: shorten the circuit or render it by installing Quantikz.jl on your computer"
@@ -50,8 +54,14 @@ end
 function rendercircuit(circuitast)
   try
     circuit = eval(circuitast)
-    f = "$(uuid4()).png"
-    savecircuit(circuit, f)
+    circuitstr = string(circuitast)
+    circuituuid = get!(filecache, circuitstr) do
+        circuituuid = uuid4()
+        f = "$(circuituuid).png"
+        savecircuit(circuit, f) # causes errors due to https://github.com/oxinabox/LoggingExtras.jl/issues/47
+        circuituuid
+    end
+    f = "$(circuituuid).png"
     data = Base64.base64encode(open(f))
     return (true, """
                   <img src="data:image/png;base64,$(data)">
@@ -69,8 +79,6 @@ end
 
 route("/") do
   if haskey(@params, :circuit)
-    Logging.@info (@params(:circuit))
-    Logging.@info (typeof(@params(:circuit)))
     circuit = unescapeuri(replace(@params(:circuit),"+"=>" "))
     parsed = parsecircuit(circuit)
     good, rendered = rendercircuit(parsed)
