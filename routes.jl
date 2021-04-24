@@ -38,9 +38,9 @@ function parsecircuit(circuitstring)
     end || return """the provided list has to contain only permitted circuit elements: $(join(map(string,whitelist_symbols),", "))"""
     all(parsed.args) do x
       all(x.args[2:end]) do y
-        isa(y, Union{Integer,String}) || (y.head == :vect && all(z->isa(z,Integer),y.args))
+        isa(y, String) || (isa(y, Integer) && y<40) || (isa(y, Expr) && y.head == :vect && all(z->isa(z,Integer)&&z<40,y.args))
       end
-    end || return "$(repr(parsed.args))only Integers, Strings, or lists of Integers may be used as arguments in the construction of a circuit element"
+    end || return "only Integers smaller than 40, Strings, or lists of Integers may be used as arguments in the construction of a circuit element"
     parsed = postwalk(parsed) do x
       isa(x, String) ? replace(x, r"[^a-zA-Z0-9 +\-*/=_^()]"=>"") : x
     end
