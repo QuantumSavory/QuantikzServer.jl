@@ -3,10 +3,11 @@ using Genie.Router
 using Base64
 using Logging
 using UUIDs
-using LRUCache
 
 using HTTP: unescapeuri
+using LRUCache
 using MacroTools: postwalk
+using Mustache
 using Quantikz
 
 const whitelist_symbols = [
@@ -18,13 +19,19 @@ const whitelist_symbols = [
 ]
 const MAX_LENGTH = 10000
 
-const filecache = LRU{String,UUID}(maxsize=10000) # TODO consider using hash instead of UUID
-# TODO evictions https://github.com/JuliaCollections/LRUCache.jl/pull/23
+const CACHE_SIZE = 5000
+function eviction(k,v)
+    @info "$(v).png"
+    rm("$(v).png")
+end
+const filecache = LRU{String,UUID}(maxsize=CACHE_SIZE, eviction_callback=eviction) # TODO consider using hash instead of UUID
+# TODO evictions to be pulled https://github.com/JuliaCollections/LRUCache.jl/pull/23
+# TODO check that evictions always happen: there might be leaks when many cache misses happen at the same time
 
 function parsecircuit(circuitstring)
   length(circuitstring) > MAX_LENGTH && return "the circuit string is too long to render on this free service: shorten the circuit or render it by installing Quantikz.jl on your computer"
   try
-    parsed = Meta.parse(circuitstring)
+    parsed = Meta.parse(strip(circuitstring))
     parsed.head ∉ [:vect,:tuple] && return "the provided string does not look like a list (you should use commas for separators and delineate with `[` and `]`)"
     all(parsed.args) do x
       isa(x, Expr) && x.head == :call && x.args[1] ∈ whitelist_symbols
@@ -40,7 +47,7 @@ function parsecircuit(circuitstring)
     return parsed
   catch e
     if isa(e, Meta.ParseError)
-      return "the provided string contains syntax errors: $(e.msg)"
+      return "the provided string contains syntax errors: $(e.msg); $(circuitstring)"
     else
       return "unknown parsing error, please report a bug: $(e)"
     end
@@ -58,7 +65,7 @@ function rendercircuit(circuitast)
     circuituuid = get!(filecache, circuitstr) do
         circuituuid = uuid4()
         f = "$(circuituuid).png"
-        savecircuit(circuit, f) # causes errors due to https://github.com/oxinabox/LoggingExtras.jl/issues/47
+        savecircuit(circuit, f)
         circuituuid
     end
     f = "$(circuituuid).png"
@@ -84,40 +91,28 @@ route("/") do
     good, rendered = rendercircuit(parsed)
     if good
       pretty_string = replace(string(parsed),"),"=>"),\n")
-      form = """
-      <form action="/" method="get" id="form">
-      <textarea name="circuit" form="form">$(pretty_string)</textarea> 
-      <input type="submit" value="Render" onclick="this.form.submit(); this.disabled = true; this.value = 'Rendering...';">
-      </form>
-      """
-      return TEMPLATE_H * rendered * form * TEMPLATE_F
+      textarea = "$(pretty_string)"
+      aboveform = "<p>$(rendered)</p>"
+      return TEMPLATE(;textarea,aboveform)
     else
-      form = """
-      <form action="/" method="get" id="form">
-      <textarea name="circuit" form="form">$(circuit)</textarea> 
-      <input type="submit" value="Render" onclick="this.form.submit(); this.disabled = true; this.value = 'Rendering...';">
-      </form>
-      """
-      return TEMPLATE_H * "<p>$(rendered)</p>" * form * TEMPLATE_F
+      textarea = "$(circuit)"
+      aboveform = "<p>$(rendered)</p>"
+      return TEMPLATE(;textarea,aboveform)
     end
   else
-    form = """
-    <form action="/" method="get" id="form">
-    <textarea name="circuit" form="form">
+    textarea = """
     [CNOT(1,2),
      CPHASE(3,4),
      Measurement(1),
      Measurement("X", 2),
      Measurement("Z", 3, 1)]
-    </textarea> 
-    <input type="submit" value="Render" onclick="this.form.submit(); this.disabled = true; this.value = 'Rendering...';">
-    </form>
     """
-    return TEMPLATE_H * form * TEMPLATE_F
+    aboveform = ""
+    return TEMPLATE(;textarea,aboveform)
   end
 end
 
-const TEMPLATE_H = """
+const TEMPLATE = mt"""
 <!doctype html>
 
 <html lang="en">
@@ -166,14 +161,24 @@ summary{
 </head>
 
 <body>
-"""
-const TEMPLATE_F = """
+
+{{{:aboveform}}}
+
+<form action="/" method="get" id="form">
+<textarea name="circuit" form="form">
+{{:textarea}}
+</textarea> 
+<input type="submit" value="Render" onclick="this.form.submit(); this.disabled = true; this.value = 'Rendering...';">
+</form>
+
 <p>
 Made by <a href="https://blog.krastanov.org">Stefan Krastanov</a> with the <a href="https://krastanov.github.io/Quantikz/stable/">Quantikz.jl</a> Julia library, based on the <a href="https://arxiv.org/abs/1809.03842">Alastair Kay's quantikz TeX package</a>. Runs on <a href="https://www.genieframework.com/">Genie</a>.
 </p>
+
 <h2>Accepted Commands (from <a href="https://krastanov.github.io/Quantikz/stable/">Quantikz.jl</a>):</h2>
-<iframe src="https://krastanov.github.io/Quantikz/stable/">
+<iframe src="https://krastanov.github.io/Quantikz/v1.0.2/useful/">
 </iframe>
+
 </body>
 </html>
 """
