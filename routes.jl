@@ -158,6 +158,22 @@ summary{
 }
 </style>
 
+<!-- Matomo -->
+<script type="text/javascript">
+  var _paq = window._paq = window._paq || [];
+  /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
+  _paq.push(['trackPageView']);
+  _paq.push(['enableLinkTracking']);
+  (function() {
+    var u="//matomo.krastanov.org/";
+    _paq.push(['setTrackerUrl', u+'matomo.php']);
+    _paq.push(['setSiteId', '3']);
+    var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+    g.type='text/javascript'; g.async=true; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
+  })();
+</script>
+<!-- End Matomo Code -->
+
 </head>
 
 <body>
@@ -172,12 +188,16 @@ summary{
 </form>
 
 <p>
-Made by <a href="https://blog.krastanov.org">Stefan Krastanov</a> with the <a href="https://krastanov.github.io/Quantikz/stable/">Quantikz.jl</a> Julia library, based on the <a href="https://arxiv.org/abs/1809.03842">Alastair Kay's quantikz TeX package</a>. Runs on <a href="https://www.genieframework.com/">Genie</a>.
+Made by <a href="https://blog.krastanov.org">Stefan Krastanov</a> with the <a href="https://github.com/Krastanov/Quantikz">Quantikz.jl</a> Julia library, based on the <a href="https://arxiv.org/abs/1809.03842">Alastair Kay's quantikz TeX package</a>. Runs on <a href="https://www.genieframework.com/">Genie</a>.
 </p>
 
-<h2>Accepted Commands (from <a href="https://krastanov.github.io/Quantikz/stable/">Quantikz.jl</a>):</h2>
-<iframe src="https://krastanov.github.io/Quantikz/v1.0.2/useful/">
+<h2>Accepted Commands (from <a href="https://github.com/Krastanov/Quantikz">Quantikz.jl</a>):</h2>
+<iframe src="https://krastanov.github.io/Quantikz/v1.0.4/useful/">
 </iframe>
+
+<!-- Matomo Image Tracker-->
+<img referrerpolicy="no-referrer-when-downgrade" src="https://matomo.krastanov.org/matomo.php?idsite=3&amp;rec=1" style="border:0" alt="" />
+<!-- End Matomo -->
 
 </body>
 </html>
