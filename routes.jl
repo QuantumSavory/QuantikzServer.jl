@@ -24,8 +24,7 @@ function eviction(k,v)
     @info "$(v).png"
     rm("$(v).png")
 end
-const filecache = LRU{String,UUID}(maxsize=CACHE_SIZE, eviction_callback=eviction) # TODO consider using hash instead of UUID
-# TODO evictions to be pulled https://github.com/JuliaCollections/LRUCache.jl/pull/23
+const filecache = LRU{String,UUID}(maxsize=CACHE_SIZE, finalizer=eviction) # TODO consider using hash instead of UUID
 # TODO check that evictions always happen: there might be leaks when many cache misses happen at the same time
 
 function parsecircuit(circuitstring)
@@ -192,7 +191,7 @@ Made by <a href="https://blog.krastanov.org">Stefan Krastanov</a> with the <a hr
 </p>
 
 <h2>Accepted Commands (from <a href="https://github.com/Krastanov/Quantikz">Quantikz.jl</a>):</h2>
-<iframe src="https://krastanov.github.io/Quantikz/v1.0.4/useful/">
+<iframe src="https://krastanov.github.io/Quantikz/v1.0.7/useful/">
 </iframe>
 
 <!-- Matomo Image Tracker-->
