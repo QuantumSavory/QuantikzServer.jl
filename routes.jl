@@ -15,7 +15,8 @@ const whitelist_symbols = [
     :CNOT, :CPHASE, :SWAP,
     :MultiControl, :MultiControlU, :ClassicalDecision,
     :Measurement, :ParityMeasurement,
-    :Noise, :NoiseAll
+    :Noise, :NoiseAll,
+    :Initialize
 ]
 const MAX_LENGTH = 10000
 
@@ -191,7 +192,7 @@ Made by <a href="https://blog.krastanov.org">Stefan Krastanov</a> with the <a hr
 </p>
 
 <h2>Accepted Commands (from <a href="https://github.com/Krastanov/Quantikz">Quantikz.jl</a>):</h2>
-<iframe src="https://krastanov.github.io/Quantikz/v1.0.7/useful/">
+<iframe src="https://krastanov.github.io/Quantikz/v1.1.0/useful/">
 </iframe>
 
 <!-- Matomo Image Tracker-->

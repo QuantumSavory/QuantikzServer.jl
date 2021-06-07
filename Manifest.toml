@@ -34,9 +34,9 @@ uuid = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
 
 [[ChainRulesCore]]
 deps = ["Compat", "LinearAlgebra", "SparseArrays"]
-git-tree-sha1 = "5d64be50ea9b43a89b476be773e125cef03c7cd5"
+git-tree-sha1 = "04dd5ce9f9d7b9b14559b00a7eb5be7528f56b82"
 uuid = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
-version = "0.10.1"
+version = "0.10.2"
 
 [[CodeTracking]]
 deps = ["InteractiveUtils", "UUIDs"]
@@ -412,9 +412,9 @@ uuid = "de0858da-6303-5e67-8744-51eddeeeb8d7"
 
 [[Quantikz]]
 deps = ["EndpointRanges", "FileIO", "Ghostscript_jll", "ImageMagick", "Pkg", "Tectonic"]
-git-tree-sha1 = "aa62aa09a5a11db97dbadb8e662f744b5b4d310d"
+git-tree-sha1 = "478d6c6ace0970a7a68658bb08f69a473664ba4c"
 uuid = "b0d11df0-eea3-4d79-b4a5-421488cbf74b"
-version = "1.0.7"
+version = "1.1.0"
 
 [[REPL]]
 deps = ["InteractiveUtils", "Markdown", "Sockets", "Unicode"]
@@ -425,9 +425,9 @@ deps = ["Serialization"]
 uuid = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 
 [[Reexport]]
-git-tree-sha1 = "57d8440b0c7d98fc4f889e478e80f268d534c9d5"
+git-tree-sha1 = "5f6c21241f0f655da3952fd60aa18477cf96c220"
 uuid = "189a3867-3050-52da-a836-e630ba90ab69"
-version = "1.0.0"
+version = "1.1.0"
 
 [[Requires]]
 deps = ["UUIDs"]
