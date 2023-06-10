@@ -183,16 +183,16 @@ summary{
 <form action="/" method="get" id="form">
 <textarea name="circuit" form="form">
 {{:textarea}}
-</textarea> 
+</textarea>
 <input type="submit" value="Render" onclick="this.form.submit(); this.disabled = true; this.value = 'Rendering...';">
 </form>
 
 <p>
-Made by <a href="https://blog.krastanov.org">Stefan Krastanov</a> with the <a href="https://github.com/Krastanov/Quantikz">Quantikz.jl</a> Julia library, based on the <a href="https://arxiv.org/abs/1809.03842">Alastair Kay's quantikz TeX package</a>. Runs on <a href="https://www.genieframework.com/">Genie</a>.
+Made by <a href="https://blog.krastanov.org">Stefan Krastanov</a> with the <a href="https://github.com/QuantumSavory/Quantikz,jl">Quantikz.jl</a> Julia library, based on the <a href="https://arxiv.org/abs/1809.03842">Alastair Kay's quantikz TeX package</a>. Runs on <a href="https://www.genieframework.com/">Genie</a>.
 </p>
 
-<h2>Accepted Commands (from <a href="https://github.com/Krastanov/Quantikz">Quantikz.jl</a>):</h2>
-<iframe src="https://krastanov.github.io/Quantikz/v1.1.0/useful/">
+<h2>Accepted Commands (from <a href="https://github.com/QuantumSavory/Quantikz.jl">Quantikz.jl</a>):</h2>
+<iframe src="https://quantumsavory.github.io/Quantikz.jl/stable/useful/">
 </iframe>
 
 <!-- Matomo Image Tracker-->
