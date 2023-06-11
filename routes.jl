@@ -34,7 +34,7 @@ function parsecircuit(circuitstring)
     parsed = Meta.parse(strip(circuitstring))
     parsed.head ∉ [:vect,:tuple] && return "the provided string does not look like a list (you should use commas for separators and delineate with `[` and `]`)"
     all(parsed.args) do x
-      isa(x, Expr) && x.head == :call && x.args[1] ∈ whitelist_symbols
+      isa(x, Expr) && x.head == :call # && x.args[1] ∈ whitelist_symbols # skip the whitelist XXX DANGEROUS
     end || return """the provided list has to contain only permitted circuit elements: $(join(map(string,whitelist_symbols),", "))"""
     all(parsed.args) do x
       all(x.args[2:end]) do y
@@ -42,7 +42,8 @@ function parsecircuit(circuitstring)
       end
     end || return "only Integers smaller than 40, Strings, or lists of Integers may be used as arguments in the construction of a circuit element"
     parsed = postwalk(parsed) do x
-      isa(x, String) ? replace(x, r"[^a-zA-Z0-9 +\-*/=_^()]"=>"") : x
+      # isa(x, String) ? replace(x, r"[^a-zA-Z0-9 +\-*/=_^()]"=>"") : x # skip the latex whitelist XXX DANGEROUS
+      x
     end
     return parsed
   catch e
