@@ -85,8 +85,8 @@ function rendercircuit(circuitast)
 end
 
 route("/") do
-  if haskey(@params, :circuit)
-    circuit = unescapeuri(replace(@params(:circuit),"+"=>" "))
+  if haskey(params(), :circuit)
+    circuit = unescapeuri(replace(params(:circuit),"+"=>" "))
     parsed = parsecircuit(circuit)
     good, rendered = rendercircuit(parsed)
     if good

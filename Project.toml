@@ -16,3 +16,6 @@ MbedTLS = "739be429-bea8-5141-9913-cc70e7f3736d"
 Mustache = "ffc61752-8dc7-55ee-8c37-f3e9cdd09e70"
 Quantikz = "b0d11df0-eea3-4d79-b4a5-421488cbf74b"
 UUIDs = "cf7118a7-6976-5b1a-9a39-7adc72f591a4"
+
+[compat]
+Genie = "5"
