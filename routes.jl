@@ -189,7 +189,7 @@ summary{
 </form>
 
 <p>
-Made by <a href="https://blog.krastanov.org">Stefan Krastanov</a> with the <a href="https://github.com/QuantumSavory/Quantikz,jl">Quantikz.jl</a> Julia library, based on the <a href="https://arxiv.org/abs/1809.03842">Alastair Kay's quantikz TeX package</a>. Runs on <a href="https://www.genieframework.com/">Genie</a>.
+Made by <a href="https://blog.krastanov.org">Stefan Krastanov</a> with the <a href="https://github.com/QuantumSavory/Quantikz.jl">Quantikz.jl</a> Julia library, based on the <a href="https://arxiv.org/abs/1809.03842">Alastair Kay's quantikz TeX package</a>. Runs on <a href="https://www.genieframework.com/">Genie</a>.
 </p>
 
 <h2>Accepted Commands (from <a href="https://github.com/QuantumSavory/Quantikz.jl">Quantikz.jl</a>):</h2>
