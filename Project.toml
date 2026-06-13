@@ -19,7 +19,7 @@ SearchLight = "340e8cb6-72eb-11e8-37ce-c97ebeb32050"
 UUIDs = "cf7118a7-6976-5b1a-9a39-7adc72f591a4"
 
 [compat]
-Genie = "5"
+Genie = "5, 6.0"
 HTTP = "1.10.19"
 LRUCache = "1.6.2"
 LoggingExtras = "1.2.0"
