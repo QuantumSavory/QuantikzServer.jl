@@ -5,23 +5,31 @@
 # If you want to selectively run tests, use `$ julia --project runtests.jl test_file_1 test_file_2`
 
 ENV["GENIE_ENV"] = "test"
-push!(LOAD_PATH, abspath(normpath(joinpath("..", "src"))))
+test_project = Base.active_project()
+app_root = normpath(joinpath(@__DIR__, ".."))
+push!(LOAD_PATH, joinpath(app_root, "src"))
 
-cd("..")
+cd(app_root)
 using Pkg
-Pkg.activate(".")
+Pkg.activate(app_root)
 
 using Genie
 Genie.loadapp()
 
 cd(@__DIR__)
-Pkg.activate(".")
+Pkg.activate(dirname(test_project))
 
 # !!! Main.UserApp is configured as an alias for Main.QuantikzServer and you might encounter it in some tests
-using Main.QuantikzServer, Test, TestSetExtensions, Logging
+using Main.QuantikzServer, Test, Logging
 
 Logging.global_logger(NullLogger())
 
-@testset ExtendedTestSet "QuantikzServer tests" begin
-  @includetests ARGS
+@testset "QuantikzServer tests" begin
+  test_files = if isempty(ARGS)
+    filter(file -> endswith(file, ".jl") && file != basename(@__FILE__), readdir(@__DIR__))
+  else
+    [endswith(file, ".jl") ? file : string(file, ".jl") for file in ARGS]
+  end
+
+  foreach(file -> include(joinpath(@__DIR__, file)), test_files)
 end
