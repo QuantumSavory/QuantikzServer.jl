@@ -1,6 +1,9 @@
 [deps]
+Base64 = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
 Genie = "c43c736e-a2d1-11e8-161f-af95117fbd1e"
+HTTP = "cd3eb016-35fb-5094-929b-558a96fad6f3"
 Logging = "56ddb016-857b-54e1-b83d-db4d58db5568"
 Pkg = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
+Quantikz = "b0d11df0-eea3-4d79-b4a5-421488cbf74b"
 SearchLight = "340e8cb6-72eb-11e8-37ce-c97ebeb32050"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"

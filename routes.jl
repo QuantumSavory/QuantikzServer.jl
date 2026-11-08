@@ -6,18 +6,15 @@ using UUIDs
 
 using HTTP: unescapeuri
 using LRUCache
-using MacroTools: postwalk
 using Mustache
 using Quantikz
 
-const whitelist_symbols = [
-    :P, :H, :Id, :U,
-    :CNOT, :CPHASE, :SWAP,
-    :MultiControl, :MultiControlU, :ClassicalDecision,
-    :Measurement, :ParityMeasurement,
-    :Noise, :NoiseAll,
-    :Initialize
-]
+# Only these trusted functions may construct operations from a request.
+const circuit_constructors = (;
+    P, H, Id, U, CNOT, CPHASE, SWAP,
+    MultiControl, MultiControlU, ClassicalDecision,
+    Measurement, ParityMeasurement, Noise, NoiseAll, Initialize
+)
 const MAX_LENGTH = 10000
 
 const CACHE_SIZE = 5000
@@ -28,29 +25,42 @@ end
 const filecache = LRU{String,UUID}(maxsize=CACHE_SIZE, finalizer=eviction) # TODO consider using hash instead of UUID
 # TODO check that evictions always happen: there might be leaks when many cache misses happen at the same time
 
+validindex(x) = x isa Integer && !(x isa Bool) && 1 <= x < 40
+
+function circuitargument(x)
+  if x isa String
+    # Labels enter a TeX document. Exclude commands, grouping, and ^^ decoding.
+    occursin(r"\A[a-zA-Z0-9 +*/=_().,:;-]*\z", x) ||
+      throw(ArgumentError("labels must contain only letters, digits, spaces, or +*/=_().,:;-"))
+    return x
+  elseif validindex(x)
+    return Int(x)
+  elseif x isa Expr && x.head == :vect
+    all(validindex, x.args) && return Int[x.args...]
+    all(y -> y isa String, x.args) && return String[circuitargument(y) for y in x.args]
+  end
+  throw(ArgumentError("arguments must be literal labels, integers from 1 to 39, or lists of these integers or labels"))
+end
+
 function parsecircuit(circuitstring)
   length(circuitstring) > MAX_LENGTH && return "the circuit string is too long to render on this free service: shorten the circuit or render it by installing Quantikz.jl on your computer"
   try
     parsed = Meta.parse(strip(circuitstring))
-    parsed.head ∉ [:vect,:tuple] && return "the provided string does not look like a list (you should use commas for separators and delineate with `[` and `]`)"
+    (!(parsed isa Expr) || parsed.head ∉ [:vect,:tuple] || isempty(parsed.args)) && return "provide a nonempty list of circuit elements, separated by commas and enclosed in `[` and `]`"
     all(parsed.args) do x
-      isa(x, Expr) && x.head == :call # && x.args[1] ∈ whitelist_symbols # skip the whitelist XXX DANGEROUS
-    end || return """the provided list has to contain only permitted circuit elements: $(join(map(string,whitelist_symbols),", "))"""
-    all(parsed.args) do x
-      all(x.args[2:end]) do y
-        isa(y, String) || (isa(y, Integer) && y<40) || (isa(y, Expr) && y.head == :vect && all(z->isa(z,Integer)&&z<40,y.args))
-      end
-    end || return "only Integers smaller than 40, Strings, or lists of Integers may be used as arguments in the construction of a circuit element"
-    parsed = postwalk(parsed) do x
-      # isa(x, String) ? replace(x, r"[^a-zA-Z0-9 +\-*/=_^()]"=>"") : x # skip the latex whitelist XXX DANGEROUS
-      x
+      x isa Expr && x.head == :call && x.args[1] isa Symbol && haskey(circuit_constructors, x.args[1])
+    end || return "the provided list has to contain only permitted circuit elements: $(join(keys(circuit_constructors), ", "))"
+    circuit = Quantikz.QuantikzOp[]
+    for x in parsed.args
+      args = map(circuitargument, x.args[2:end])
+      push!(circuit, circuit_constructors[x.args[1]](args...))
     end
-    return parsed
+    return circuit
   catch e
     if isa(e, Meta.ParseError)
       return "the provided string contains syntax errors: $(e.msg); $(circuitstring)"
     else
-      return "unknown parsing error, please report a bug: $(e)"
+      return "invalid circuit: $(sprint(showerror, e))"
     end
   end
 end
@@ -59,10 +69,9 @@ function rendercircuit(warning::String)
   return (false, warning)
 end
 
-function rendercircuit(circuitast)
+function rendercircuit(circuit::AbstractVector{<:Quantikz.QuantikzOp})
   try
-    circuit = eval(circuitast)
-    circuitstr = string(circuitast)
+    circuitstr = string(circuit)
     circuituuid = get!(filecache, circuitstr) do
         circuituuid = uuid4()
         f = "$(circuituuid).png"
@@ -70,13 +79,13 @@ function rendercircuit(circuitast)
         circuituuid
     end
     f = "$(circuituuid).png"
-    data = Base64.base64encode(open(f))
+    data = Base64.base64encode(read(f))
     return (true, """
                   <img src="data:image/png;base64,$(data)">
                   <details>
                   <summary>TeX code for this image</summary>
                   <pre>
-                  $(circuit2string(circuit))
+                  $(Mustache.escape_html(circuit2string(circuit)))
                   </pre>
                   </details>
                   """)
@@ -90,16 +99,9 @@ route("/") do
     circuit = unescapeuri(replace(params(:circuit),"+"=>" "))
     parsed = parsecircuit(circuit)
     good, rendered = rendercircuit(parsed)
-    if good
-      pretty_string = replace(string(parsed),"),"=>"),\n")
-      textarea = "$(pretty_string)"
-      aboveform = "<p>$(rendered)</p>"
-      return TEMPLATE(;textarea,aboveform)
-    else
-      textarea = "$(circuit)"
-      aboveform = "<p>$(rendered)</p>"
-      return TEMPLATE(;textarea,aboveform)
-    end
+    textarea = circuit
+    aboveform = "<p>$(good ? rendered : Mustache.escape_html(rendered))</p>"
+    return TEMPLATE(;textarea,aboveform)
   else
     textarea = """
     [CNOT(1,2),
@@ -193,6 +195,10 @@ Made by <a href="https://blog.krastanov.org">Stefan Krastanov</a> with the <a hr
 </p>
 
 <h2>Accepted Commands (from <a href="https://github.com/QuantumSavory/Quantikz.jl">Quantikz.jl</a>):</h2>
+<p>Use literal circuit elements with indices from 1 to 39. Labels may contain
+letters, digits, spaces, and <code>+*/=_().,:;-</code>. Julia expressions and TeX
+commands are not accepted by this public renderer. For full TeX labels, render
+locally with Quantikz.jl.</p>
 <iframe src="https://quantumsavory.github.io/Quantikz.jl/stable/useful/">
 </iframe>
 
